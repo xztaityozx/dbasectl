@@ -1,2 +1,2 @@
-# docbase-cli
+# dbasectl
 DocBase API cli client
