@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/xztaityozx/docbase-cli/cmd"
+	"github.com/xztaityozx/dbasectl/cmd"
 )
 
 func main() {
