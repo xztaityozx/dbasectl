@@ -9,8 +9,10 @@ import (
 )
 
 type Config struct {
+	// DocBaseのアクセストークン
 	AccessToken string
-	TeamName    string
+	// 所属しているチームの名前
+	TeamName string
 }
 
 // Load はコンフィグファイルを読んで内容を Config 構造体にして返す

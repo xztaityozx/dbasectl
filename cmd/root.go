@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/xztaityozx/dbasectl/config"
 )
@@ -31,6 +32,7 @@ func init() {
 	}
 }
 
+// Execute はこのアプリのエントリーポイント
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 	}
