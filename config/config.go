@@ -10,9 +10,9 @@ import (
 
 type Config struct {
 	// DocBaseのアクセストークン
-	AccessToken string
+	Token string
 	// 所属しているチームの名前
-	TeamName string
+	Name string
 }
 
 // Load はコンフィグファイルを読んで内容を Config 構造体にして返す
@@ -38,5 +38,5 @@ func Load(path string) (Config, error) {
 
 	err := viper.ReadInConfig()
 
-	return Config{AccessToken: viper.GetString("AccessToken"), TeamName: viper.GetString("TeamName")}, err
+	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name")}, err
 }

@@ -18,8 +18,8 @@ import (
 func Test_Load(t *testing.T) {
 	as := assert.New(t)
 	cfg := Config{
-		AccessToken: "Token",
-		TeamName:    "Name",
+		Token: "token",
+		Name:  "name",
 	}
 
 	home, _ := homedir.Dir()
