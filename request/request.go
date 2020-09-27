@@ -2,10 +2,9 @@ package request
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/xztaityozx/dbasectl/config"
@@ -15,53 +14,80 @@ type EndPoint string
 
 type Request struct {
 	cfg config.Config
+	req *http.Request
+	url string
+	logger *logrus.Logger
+	body io.Reader
 }
 
-func New(cfg config.Config) Request {
-	return Request{cfg: cfg}
+// New は DocBaseの ep に method でアクセスする Request を返す
+func New(cfg config.Config, method string, ep EndPoint) (Request, error) {
+	if cfg.Token == "" {
+		return Request{}, fmt.Errorf("access token is empty")
+	}
+
+	if cfg.Name == "" {
+		return Request{}, fmt.Errorf("team name is empty")
+	}
+
+	if !isAllowedEndPoint(method, ep) {
+		return Request{}, fmt.Errorf("%s method is not allowed to %s endpoint", method, ep)
+	}
+
+	url := fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep)
+
+	return Request{cfg: cfg, req: nil, url: url, logger: nil}, nil
 }
 
-// Post は ep に body をPOSTする
-func (r Request) Post(ctx context.Context, ep EndPoint, body io.Reader) (string, error) {
-	// POSTできるEndPointかどうかチェック
-	if func() bool {
-		for _, v := range []EndPoint{Upload} {
-			if v == ep {
-				return true
-			}
-		}
+// WithLogger は logrus.Logger をセットした Request を返す
+func (r *Request) WithLogger(logger *logrus.Logger) *Request {
+	r.logger = logger
+	return r
+}
+
+// SetBody はリクエストボディをセットする
+func (r *Request) SetBody(body io.Reader) *Request {
+	r.body = body
+	return r
+}
+
+// Do は DocBaseのAPIにアクセスして、そのレスポンスボディを返す
+func (r *Request) Do(ctx context.Context) (responseBody io.Reader, err error) {
+	panic("not implements")
+}
+
+func (r *Request) info(args ...interface{}) {
+	if r.logger != nil {
+		r.logger.Info(args...)
+	}
+}
+
+func (r *Request) warn(args ...interface{}) {
+	if r.logger != nil {
+		r.logger.Warn(args...)
+	}
+}
+
+func (r *Request) fatal(args ...interface{}) {
+	if r.logger != nil {
+		r.logger.Fatal(args...)
+	}
+}
+
+var allowedDictionary = map[string][]EndPoint{
+	http.MethodPost: {Upload},
+}
+
+func isAllowedEndPoint(method string ,ep EndPoint) bool {
+	d, ok := allowedDictionary[method]
+	if !ok {
 		return false
-	}() {
-		return "", errors.New(fmt.Sprintf("%s is not allowed EndPoint for POST method", ep))
 	}
 
-	url, err := r.getUrl(ep)
-	if err != nil {
-		return "", err
+	for _, v := range d {
+		if v == ep {
+			return true
+		}
 	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
-	if err != nil {
-		return "", err
-	}
-
-	// アクセストークンをセット
-	req.Header.Set("X-DocBaseToken", r.cfg.Token)
-	// Postでは jsonを投げる
-	req.Header.Set("Content-Type", "application/json")
-
-	client := http.Client{}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer res.Body.Close()
-
-	result, err := ioutil.ReadAll(res.Body)
-	return string(result), err
-}
-
-func (r Request) getUrl(ep EndPoint) (string, error) {
-	panic("not Imple")
+	return false
 }
