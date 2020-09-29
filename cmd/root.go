@@ -22,11 +22,13 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// サブコマンドまで使えるオプションたち
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "path to config file")
-	rootCmd.PersistentFlags().String("token", "", "Your access token for docbase api")
-	rootCmd.PersistentFlags().String("name", "", "Name of your docbase team")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "コンフィグファイルへのパス")
+	rootCmd.PersistentFlags().String("token", "", "DocBase APIにアクセスするためのAPI Token")
+	rootCmd.PersistentFlags().String("name", "", "DocBaseのチーム名")
+	rootCmd.PersistentFlags().IntP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
 	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("name", rootCmd.PersistentFlags().Lookup("name"))
+	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 }
 
 // initConfig は コンフィグのロードなどを行う

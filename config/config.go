@@ -13,6 +13,8 @@ type Config struct {
 	Token string
 	// 所属しているチームの名前
 	Name string
+	// タイムアウト(msec)
+	Timeout int
 }
 
 // Load はコンフィグファイルを読んで内容を Config 構造体にして返す
