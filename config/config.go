@@ -3,6 +3,7 @@ package config
 import (
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -14,7 +15,7 @@ type Config struct {
 	// 所属しているチームの名前
 	Name string
 	// タイムアウト(msec)
-	Timeout int
+	Timeout time.Duration
 }
 
 // Load はコンフィグファイルを読んで内容を Config 構造体にして返す
@@ -40,5 +41,5 @@ func Load(path string) (Config, error) {
 
 	err := viper.ReadInConfig()
 
-	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name"), Timeout: viper.GetInt("Timeout")}, err
+	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name"), Timeout: viper.GetDuration("Timeout")}, err
 }
