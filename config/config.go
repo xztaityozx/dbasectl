@@ -40,5 +40,5 @@ func Load(path string) (Config, error) {
 
 	err := viper.ReadInConfig()
 
-	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name")}, err
+	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name"), Timeout: viper.GetInt("Timeout")}, err
 }
