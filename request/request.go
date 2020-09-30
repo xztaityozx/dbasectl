@@ -3,15 +3,21 @@ package request
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"regexp"
+	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/xztaityozx/dbasectl/config"
 )
 
 type EndPoint string
+
+const (
+	Upload EndPoint = "attachments"
+)
 
 type Request struct {
 	cfg    config.Config
@@ -66,7 +72,9 @@ func (r *Request) Build() error {
 		r.info("method: ", r.method)
 	}
 
-	if ok, err := regexp.MatchString("https://api.docbase.io/teams/.*/.*", r.url); err != nil {
+	// セットされているURLが正しいっぽいかどうか
+	// 少なくとも以下の正規表現を満たしていないといけない
+	if ok, err := regexp.MatchString("https://api.docbase.io/teams/.+/.+", r.url); err != nil {
 		return err
 	} else if !ok {
 		return fmt.Errorf("invalid URL: %s", r.url)
@@ -78,6 +86,7 @@ func (r *Request) Build() error {
 	r.req, err = http.NewRequest(r.method, r.url, r.body)
 	r.req.Header.Set("X-DocBaseToken", r.cfg.Token)
 
+	// POST系はJSONを投げるので、Content-Typeを指定しておく
 	if r.method == http.MethodPost {
 		r.req.Header.Set("Content-Type", "application/json")
 		r.info("Content-Type: application/json")
@@ -91,7 +100,19 @@ func (r *Request) Build() error {
 
 // Do は DocBaseのAPIにアクセスして、そのレスポンスボディを返す
 func (r *Request) Do(ctx context.Context) (responseBody io.Reader, err error) {
-	panic("not implements")
+	r.req.WithContext(ctx)
+
+	client := &http.Client{}
+	if r.cfg.Timeout >= 0 {
+		client.Timeout = time.Duration(r.cfg.Timeout * time.Millisecond)
+		r.info("timeout: ", r.cfg.Timeout)
+	}
+
+	r.info("request started at ", time.Now())
+	res, err := client.Do(r.req)
+	r.info("request ended at ", time.Now())
+
+	return res.Body, err
 }
 
 func (r *Request) info(args ...interface{}) {
@@ -103,12 +124,6 @@ func (r *Request) info(args ...interface{}) {
 func (r *Request) warn(args ...interface{}) {
 	if r.logger != nil {
 		r.logger.Warn(args...)
-	}
-}
-
-func (r *Request) fatal(args ...interface{}) {
-	if r.logger != nil {
-		r.logger.Fatal(args...)
 	}
 }
 
