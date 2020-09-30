@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"os"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,6 +20,7 @@ var rootCmd = &cobra.Command{
 
 var cfgFile string
 var cfg config.Config
+var logger *logrus.Logger
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -25,7 +29,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "コンフィグファイルへのパス")
 	rootCmd.PersistentFlags().String("token", "", "DocBase APIにアクセスするためのAPI Token")
 	rootCmd.PersistentFlags().String("name", "", "DocBaseのチーム名")
-	rootCmd.PersistentFlags().IntP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
+	rootCmd.PersistentFlags().DurationP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
+	rootCmd.PersistentFlags().Bool("verbose", false, "ログを出力しながら実行します")
 	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("name", rootCmd.PersistentFlags().Lookup("name"))
 	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
@@ -43,6 +48,12 @@ func initConfig() {
 
 // Execute はこのアプリのエントリーポイント
 func Execute() {
+	if viper.GetBool("verbose") {
+		logger = logrus.New()
+		logger.SetOutput(os.Stderr)
+		logger.Formatter = &logrus.TextFormatter{ForceColors: true, TimestampFormat: time.RFC3339}
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 	}
 }
