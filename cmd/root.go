@@ -31,9 +31,13 @@ func init() {
 	rootCmd.PersistentFlags().String("name", "", "DocBaseのチーム名")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
 	rootCmd.PersistentFlags().Bool("verbose", false, "ログを出力しながら実行します")
-	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-	viper.BindPFlag("name", rootCmd.PersistentFlags().Lookup("name"))
-	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
+
+	// コンフィグとオプションのバインド
+	for _, name := range []string{"token", "name", "timeout"} {
+		if err := viper.BindPFlag(name, rootCmd.PersistentFlags().Lookup(name)); err != nil {
+			logrus.WithError(err).Warn("failed to bind ", name, " option")
+		}
+	}
 }
 
 // initConfig は コンフィグのロードなどを行う
