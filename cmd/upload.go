@@ -1,12 +1,17 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/xztaityozx/dbasectl/encode"
-	"os"
-	"path/filepath"
+	"github.com/xztaityozx/dbasectl/request"
 )
 
 var uploadCmd = &cobra.Command{
@@ -61,6 +66,11 @@ func do(files ...string) error {
 		}
 	}
 
+	// Upload候補が0個だった
+	if len(dic) == 0 {
+		return fmt.Errorf("アップロードすべきファイルがありません")
+	}
+
 	var b []content
 	for name, p := range dic {
 		encoded, err := encode.Encode(p)
@@ -72,9 +82,20 @@ func do(files ...string) error {
 		b = append(b, content{name: name, content: encoded})
 	}
 
-	// Upload候補が0個だった
-	if len(dic) == 0 {
-		return fmt.Errorf("アップロードすべきファイルがありません")
+	// json文字列へ
+	jsonBytes, err := json.Marshal(b)
+	if err != nil {
+		return err
+	}
+
+	req, err := request.New(cfg, http.MethodPost, request.Upload)
+	if err != nil {
+		return err
+	}
+
+	err = req.WithLogger(logger).SetBody(bytes.NewBuffer(jsonBytes)).Build()
+	if err != nil {
+		return err
 	}
 
 	return nil
