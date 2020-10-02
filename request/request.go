@@ -99,7 +99,7 @@ func (r *Request) Build() error {
 }
 
 // Do は DocBaseのAPIにアクセスして、そのレスポンスボディを返す
-func (r *Request) Do(ctx context.Context) (responseBody io.Reader, err error) {
+func (r *Request) Do(ctx context.Context) (responseBody io.ReadCloser, err error) {
 	r.req.WithContext(ctx)
 
 	client := &http.Client{}
