@@ -1,11 +1,14 @@
 package cmd
 
 import (
-	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/xztaityozx/dbasectl/config"
 )
 
 func Test_Do(t *testing.T) {
@@ -36,7 +39,14 @@ func Test_Do(t *testing.T) {
 		as.Error(do())
 	})
 
-	t.Run("base64エンコーディング出来ないファイルを指定した", func(t *testing.T) {
+	t.Run("configが不足しててUploadできない", func(t *testing.T) {
+		p := filepath.Join(baseDir, "file")
+		as.Nil(ioutil.WriteFile(p, []byte("それ"), 0644))
+
+		cfg = config.Config{}
+		as.Error(do(p))
+		as.Error(do(filepath.Join(baseDir, "fi??")), "Globでも良い")
+		as.Nil(os.Remove(p))
 	})
 
 	_ = os.RemoveAll(baseDir)
