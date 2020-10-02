@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -21,6 +22,8 @@ var rootCmd = &cobra.Command{
 var cfgFile string
 var cfg config.Config
 var logger *logrus.Logger
+var ctx context.Context
+var cancelFunc context.CancelFunc
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -38,6 +41,9 @@ func init() {
 			logrus.WithError(err).Warn("failed to bind ", name, " option")
 		}
 	}
+
+	// 全体で使うコンテキスト
+	ctx, cancelFunc = context.WithCancel(context.Background())
 }
 
 // initConfig は コンフィグのロードなどを行う
