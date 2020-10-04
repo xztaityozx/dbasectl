@@ -112,7 +112,15 @@ func (r *Request) Do(ctx context.Context) (responseBody io.ReadCloser, err error
 	res, err := client.Do(r.req)
 	r.info("request ended at ", time.Now())
 
-	return res.Body, err
+	if err != nil {
+		return nil, err
+	}
+
+	if res == nil {
+		return nil, fmt.Errorf("response is nil")
+	}
+
+	return res.Body, nil
 }
 
 func (r *Request) info(args ...interface{}) {

@@ -4,22 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
-	"path/filepath"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/xztaityozx/dbasectl/encode"
 	"github.com/xztaityozx/dbasectl/request"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var uploadCmd = &cobra.Command{
 	Use:   "upload",
 	Short: "Upload file to docbase",
 	Run: func(cmd *cobra.Command, args []string) {
-		logrus.Info("This is upload sub command")
-
 		if err := do(args...); err != nil {
 			logrus.Fatal(err)
 		}
@@ -98,5 +95,11 @@ func do(files ...string) error {
 		return err
 	}
 
-	return nil
+	// リクエストする
+	res, err := req.Do(ctx)
+	if err != nil {
+		return err
+	}
+	defer res.Close()
+	return PrintJson(res)
 }

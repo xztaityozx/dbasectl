@@ -46,7 +46,7 @@ func Test_Do(t *testing.T) {
 		cfg = config.Config{}
 		as.Error(do(p))
 		as.Error(do(filepath.Join(baseDir, "fi??")), "Globでも良い")
-		as.Nil(os.Remove(p))
+		_ = os.Remove(p)
 	})
 
 	_ = os.RemoveAll(baseDir)
