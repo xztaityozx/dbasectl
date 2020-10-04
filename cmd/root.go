@@ -1,8 +1,15 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -23,7 +30,6 @@ var cfgFile string
 var cfg config.Config
 var logger *logrus.Logger
 var ctx context.Context
-var cancelFunc context.CancelFunc
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -34,6 +40,7 @@ func init() {
 	rootCmd.PersistentFlags().String("name", "", "DocBaseのチーム名")
 	rootCmd.PersistentFlags().DurationP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
 	rootCmd.PersistentFlags().Bool("verbose", false, "ログを出力しながら実行します")
+	rootCmd.PersistentFlags().BoolP("pretty-print", "p", false, "レスポンスとして帰ってきたJSONを成形して出力します")
 
 	// コンフィグとオプションのバインド
 	for _, name := range []string{"token", "name", "timeout"} {
@@ -41,9 +48,6 @@ func init() {
 			logrus.WithError(err).Warn("failed to bind ", name, " option")
 		}
 	}
-
-	// 全体で使うコンテキスト
-	ctx, cancelFunc = context.WithCancel(context.Background())
 }
 
 // initConfig は コンフィグのロードなどを行う
@@ -58,12 +62,48 @@ func initConfig() {
 
 // Execute はこのアプリのエントリーポイント
 func Execute() {
+	loggerFormatter := &logrus.TextFormatter{ForceColors: true, TimestampFormat: time.RFC3339}
+
 	if viper.GetBool("verbose") {
 		logger = logrus.New()
 		logger.SetOutput(os.Stderr)
-		logger.Formatter = &logrus.TextFormatter{ForceColors: true, TimestampFormat: time.RFC3339}
+		logger.SetFormatter(loggerFormatter)
 	}
+
+	logrus.SetFormatter(loggerFormatter)
+
+	// 全体で使うコンテキスト
+	var cancelFunc context.CancelFunc
+	ctx, cancelFunc = context.WithCancel(context.Background())
+
+	// Ctrl-Cでキャンセルできる
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGINT)
+	go func() {
+		logger.Warn("Ctrl+Cでキャンセルできます")
+		<-sigCh
+		cancelFunc()
+	}()
 
 	if err := rootCmd.Execute(); err != nil {
 	}
+}
+
+// PrintJson はviperのフラグを見て成形してSTDOUTに出したりする
+func PrintJson(r io.Reader) error {
+	content, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	if b, _ := rootCmd.PersistentFlags().GetBool("pretty-print"); b {
+		var indented []byte
+		r := bytes.NewBuffer(indented)
+		_ = json.Indent(r, content, "", "  ")
+		fmt.Println(r.String())
+	} else {
+		fmt.Println(string(content))
+	}
+
+	return nil
 }
