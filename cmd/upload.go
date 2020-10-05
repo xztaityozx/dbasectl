@@ -16,7 +16,8 @@ import (
 
 var uploadCmd = &cobra.Command{
 	Use:   "upload",
-	Short: "Upload file to docbase",
+	Short: "画像やファイルをDocBaseにアップロードします",
+	Long:  `ファイルや画像をDocBaseにアップロードします。レスポンスとして、idやpath、markdownへの埋め込み情報などが記述されたJSONをSTDOUTに出力します`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := do(args...); err != nil {
 			logrus.Fatal(err)
