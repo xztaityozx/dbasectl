@@ -38,7 +38,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "コンフィグファイルへのパス")
 	rootCmd.PersistentFlags().String("token", "", "DocBase APIにアクセスするためのAPI Token")
 	rootCmd.PersistentFlags().String("name", "", "DocBaseのチーム名")
-	rootCmd.PersistentFlags().DurationP("timeout", "t", -1, "リクエストをタイムアウトする秒数(msec)。負数で無限")
+	rootCmd.PersistentFlags().DurationP("timeout", "t", -1000000, "リクエストをタイムアウトする秒数(msec)。負数で無限")
 	rootCmd.PersistentFlags().Bool("verbose", false, "ログを出力しながら実行します")
 	rootCmd.PersistentFlags().BoolP("pretty-print", "p", false, "レスポンスとして帰ってきたJSONを成形して出力します")
 
@@ -80,7 +80,9 @@ func Execute() {
 	sigCh := make(chan os.Signal)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGINT)
 	go func() {
-		logger.Warn("Ctrl+Cでキャンセルできます")
+		if logger != nil {
+			logger.Warn("Ctrl+Cでキャンセルできます")
+		}
 		<-sigCh
 		cancelFunc()
 	}()
