@@ -104,7 +104,7 @@ func (r *Request) Do(ctx context.Context) (responseBody io.ReadCloser, err error
 
 	client := &http.Client{}
 	if r.cfg.Timeout >= 0 {
-		client.Timeout = time.Duration(r.cfg.Timeout * time.Millisecond)
+		client.Timeout = time.Duration(r.cfg.Timeout * time.Nanosecond)
 		r.info("timeout: ", r.cfg.Timeout)
 	}
 
