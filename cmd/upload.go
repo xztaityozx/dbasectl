@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/xztaityozx/dbasectl/encode"
 	"github.com/xztaityozx/dbasectl/request"
-	"net/http"
-	"os"
-	"path/filepath"
 )
 
 var uploadCmd = &cobra.Command{
@@ -24,8 +25,8 @@ var uploadCmd = &cobra.Command{
 }
 
 type content struct {
-	name    string
-	content string
+	Name    string `json:"name"`
+	Content string `json:"content"`
 }
 
 func init() {
@@ -76,7 +77,7 @@ func do(files ...string) error {
 			return err
 		}
 
-		b = append(b, content{name: name, content: encoded})
+		b = append(b, content{Name: name, Content: encoded})
 	}
 
 	// json文字列へ
