@@ -18,7 +18,7 @@ func Test_Do(t *testing.T) {
 	as.Nil(os.MkdirAll(baseDir, 0755))
 
 	t.Run("ディレクトリはUploadできない", func(t *testing.T) {
-		as.Error(do(baseDir))
+		as.Error(uploadDo(baseDir))
 	})
 
 	t.Run("スペシャルファイルはUploadできない", func(t *testing.T) {
@@ -26,17 +26,17 @@ func Test_Do(t *testing.T) {
 			t.Skip()
 		}
 
-		as.Error(do("/dev/null"), "/dev/nullはUpできない")
-		as.Error(do("/dev/nu??"), "Globも展開できる")
+		as.Error(uploadDo("/dev/null"), "/dev/nullはUpできない")
+		as.Error(uploadDo("/dev/nu??"), "Globも展開できる")
 	})
 
 	t.Run("存在しないファイルはUploadできない", func(t *testing.T) {
 		p := filepath.Join(baseDir, "none")
-		as.Error(do(p))
+		as.Error(uploadDo(p))
 	})
 
 	t.Run("指定が0個のときはUploadできない", func(t *testing.T) {
-		as.Error(do())
+		as.Error(uploadDo())
 	})
 
 	t.Run("configが不足しててUploadできない", func(t *testing.T) {
@@ -44,8 +44,8 @@ func Test_Do(t *testing.T) {
 		as.Nil(ioutil.WriteFile(p, []byte("それ"), 0644))
 
 		cfg = config.Config{}
-		as.Error(do(p))
-		as.Error(do(filepath.Join(baseDir, "fi??")), "Globでも良い")
+		as.Error(uploadDo(p))
+		as.Error(uploadDo(filepath.Join(baseDir, "fi??")), "Globでも良い")
 		_ = os.Remove(p)
 	})
 
