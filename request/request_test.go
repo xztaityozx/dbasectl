@@ -3,12 +3,13 @@ package request
 import (
 	"bytes"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
-	"github.com/xztaityozx/dbasectl/config"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/xztaityozx/dbasectl/config"
 )
 
 func TestNew(t *testing.T) {

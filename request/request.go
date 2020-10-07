@@ -16,7 +16,8 @@ import (
 type EndPoint string
 
 const (
-	Upload EndPoint = "attachments"
+	Upload   EndPoint = "attachments"
+	Download EndPoint = "attachments"
 )
 
 type Request struct {
@@ -95,7 +96,14 @@ func (r *Request) Build() error {
 		}
 	}
 
+	logrus.Info(r.req.URL.String())
+
 	return err
+}
+
+func (r *Request) SetLastPath(item string) *Request {
+	r.url += "/" + item
+	return r
 }
 
 // Do は DocBaseのAPIにアクセスして、そのレスポンスボディを返す
@@ -137,6 +145,7 @@ func (r *Request) warn(args ...interface{}) {
 
 var allowedDictionary = map[string][]EndPoint{
 	http.MethodPost: {Upload},
+	http.MethodGet:  {Download},
 }
 
 func isAllowedEndPoint(method string, ep EndPoint) bool {
