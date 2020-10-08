@@ -128,6 +128,10 @@ func (r *Request) Do(ctx context.Context) (responseBody io.ReadCloser, err error
 		return nil, fmt.Errorf("response is nil")
 	}
 
+	if res.StatusCode != 200 {
+		return res.Body, fmt.Errorf("APIがステータスコード %d を返しました", res.StatusCode)
+	}
+
 	return res.Body, nil
 }
 

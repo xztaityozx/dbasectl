@@ -57,7 +57,16 @@ func downloadDo(id, name string) error {
 
 	res, err := req.Do(ctx)
 	if err != nil {
-		return err
+		if res == nil {
+			return err
+		}
+
+		content, rErr := ioutil.ReadAll(res)
+		if rErr != nil {
+			return rErr
+		}
+
+		return fmt.Errorf("%v\n%s", err, string(content))
 	}
 
 	content, err := ioutil.ReadAll(res)
