@@ -124,6 +124,8 @@ func TestRequest_Build(t *testing.T) {
 				as.Equal(cfg.Token, r.req.Header.Get("X-DocBaseToken"), "Tokenが正しくセットされている")
 				as.Equal(fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep), r.req.URL.String(), "URLが正しい")
 
+				as.Equal(cfg.Token, r.req.Header.Get("X-DocBaseToken"))
+
 				if method == http.MethodPost {
 					as.Equal("application/json", r.req.Header.Get("Content-Type"), "POSTではJSONを投げる")
 				}
@@ -133,7 +135,6 @@ func TestRequest_Build(t *testing.T) {
 }
 
 func TestRequest_AddPath(t *testing.T) {
-
 	u, _ := url.Parse("https://example.com")
 	r := Request{url: u}
 	r.AddPath("item")
