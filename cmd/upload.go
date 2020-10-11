@@ -20,7 +20,7 @@ var uploadCmd = &cobra.Command{
 	Long:    `ファイルや画像をDocBaseにアップロードします。レスポンスとして、idやpath、markdownへの埋め込み情報などが記述されたJSONをSTDOUTに出力します`,
 	Example: "dbasectl upload /path/to/image.png",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := do(args...); err != nil {
+		if err := uploadDo(args...); err != nil {
 			logrus.Fatal(err)
 		}
 	},
@@ -35,7 +35,7 @@ func init() {
 	rootCmd.AddCommand(uploadCmd)
 }
 
-func do(files ...string) error {
+func uploadDo(files ...string) error {
 	dic := map[string]string{}
 
 	for _, file := range files {

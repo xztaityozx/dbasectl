@@ -3,12 +3,14 @@ package request
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/xztaityozx/dbasectl/config"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 func TestNew(t *testing.T) {
@@ -48,10 +50,11 @@ func TestNew(t *testing.T) {
 				req, err := New(cfg, method, ep)
 
 				as.Nil(err)
+				u, _ := url.Parse(fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep))
 				as.Equal(Request{
 					cfg:    cfg,
 					req:    nil,
-					url:    fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep),
+					url:    u,
 					logger: nil,
 					method: method,
 				}, req, "Requestが返される")
@@ -98,7 +101,7 @@ func TestRequest_Build(t *testing.T) {
 	})
 
 	t.Run("URLが正しくないとき", func(t *testing.T) {
-		r := Request{method: http.MethodPost, url: "invalid"}
+		r := Request{method: http.MethodPost, url: &url.URL{Path: "invalid"}}
 		as.Error(r.Build(), "エラーが返されるべき")
 	})
 
@@ -121,10 +124,20 @@ func TestRequest_Build(t *testing.T) {
 				as.Equal(cfg.Token, r.req.Header.Get("X-DocBaseToken"), "Tokenが正しくセットされている")
 				as.Equal(fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep), r.req.URL.String(), "URLが正しい")
 
+				as.Equal(cfg.Token, r.req.Header.Get("X-DocBaseToken"))
+
 				if method == http.MethodPost {
 					as.Equal("application/json", r.req.Header.Get("Content-Type"), "POSTではJSONを投げる")
 				}
 			}
 		}
 	})
+}
+
+func TestRequest_AddPath(t *testing.T) {
+	u, _ := url.Parse("https://example.com")
+	r := Request{url: u}
+	r.AddPath("item")
+
+	assert.Equal(t, "https://example.com/item", r.url.String())
 }

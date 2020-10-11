@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"path"
 	"regexp"
 	"time"
 
@@ -16,13 +18,14 @@ import (
 type EndPoint string
 
 const (
-	Upload EndPoint = "attachments"
+	Upload   EndPoint = "attachments"
+	Download EndPoint = "attachments"
 )
 
 type Request struct {
 	cfg    config.Config
 	req    *http.Request
-	url    string
+	url    *url.URL
 	logger *logrus.Logger
 	body   io.Reader
 	method string
@@ -42,9 +45,12 @@ func New(cfg config.Config, method string, ep EndPoint) (Request, error) {
 		return Request{}, fmt.Errorf("%s method is not allowed to %s endpoint", method, ep)
 	}
 
-	url := fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep)
+	u, err := url.Parse(fmt.Sprintf("https://api.docbase.io/teams/%s/%s", cfg.Name, ep))
+	if err != nil {
+		return Request{}, err
+	}
 
-	return Request{cfg: cfg, req: nil, url: url, logger: nil, method: method}, nil
+	return Request{cfg: cfg, req: nil, url: u, logger: nil, method: method}, nil
 }
 
 // WithLogger は logrus.Logger をセットした Request を返す
@@ -74,16 +80,16 @@ func (r *Request) Build() error {
 
 	// セットされているURLが正しいっぽいかどうか
 	// 少なくとも以下の正規表現を満たしていないといけない
-	if ok, err := regexp.MatchString("https://api.docbase.io/teams/.+/.+", r.url); err != nil {
+	if ok, err := regexp.MatchString("https://api.docbase.io/teams/.+/.+", r.url.String()); err != nil {
 		return err
 	} else if !ok {
 		return fmt.Errorf("invalid URL: %s", r.url)
 	} else {
-		r.info("url: ", r.url)
+		r.info("url: ", r.url.String())
 	}
 
 	var err error
-	r.req, err = http.NewRequest(r.method, r.url, r.body)
+	r.req, err = http.NewRequest(r.method, r.url.String(), r.body)
 	r.req.Header.Set("X-DocBaseToken", r.cfg.Token)
 
 	// POST系はJSONを投げるので、Content-Typeを指定しておく
@@ -96,6 +102,12 @@ func (r *Request) Build() error {
 	}
 
 	return err
+}
+
+// AddPath はURLのにパスを追加する
+func (r *Request) AddPath(item string) *Request {
+	r.url.Path = path.Join(r.url.Path, item)
+	return r
 }
 
 // Do は DocBaseのAPIにアクセスして、そのレスポンスボディを返す
@@ -120,6 +132,10 @@ func (r *Request) Do(ctx context.Context) (responseBody io.ReadCloser, err error
 		return nil, fmt.Errorf("response is nil")
 	}
 
+	if res.StatusCode != 200 {
+		return res.Body, fmt.Errorf("APIがステータスコード %d を返しました", res.StatusCode)
+	}
+
 	return res.Body, nil
 }
 
@@ -137,6 +153,7 @@ func (r *Request) warn(args ...interface{}) {
 
 var allowedDictionary = map[string][]EndPoint{
 	http.MethodPost: {Upload},
+	http.MethodGet:  {Download},
 }
 
 func isAllowedEndPoint(method string, ep EndPoint) bool {
