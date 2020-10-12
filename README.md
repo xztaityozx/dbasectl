@@ -46,7 +46,7 @@ dbasectlはいくつかのサブコマンドで機能を切り替えます
 |機能名|サブコマンド名|状態|
 |:--:|:--:|:--:|
 |ファイルアップロード|upload|ok|
-|ファイルダウンロード|download|todo
+|ファイルダウンロード|download|ok|
 |メモ検索|seach|todo|
 |メモ更新|update|todo|
 |メモ投稿|post|todo|
