@@ -1,6 +1,10 @@
 package result
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 type User struct {
 	Result
@@ -8,10 +12,19 @@ type User struct {
 	ProfileImageUrl string
 }
 
+func (u User) String() string {
+	return fmt.Sprint(u.Id, u.Name, u.ProfileImageUrl)
+}
+
 type Users []User
 
 func (u Users) String() string {
-	panic("implement me")
+	var sb []string
+	for _, v := range u {
+		sb = append(sb, v.String())
+	}
+
+	return strings.Join(sb, "\n")
 }
 
 type UserDetail struct {

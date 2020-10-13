@@ -2,12 +2,6 @@ package result
 
 import "time"
 
-type Posts []Post
-
-func (p Posts) String() string {
-	panic("implement me")
-}
-
 type Post struct {
 	Id            int
 	Title         string
@@ -32,4 +26,13 @@ type Comment struct {
 	Body      string
 	CreatedAt *time.Time
 	User      User
+}
+
+type Posts struct {
+	Posts Post
+	Meta  Meta
+}
+
+func (p Posts) String() string {
+	panic("implement me")
 }
