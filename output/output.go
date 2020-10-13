@@ -22,6 +22,17 @@ func (f Format) String() string {
 	return []string{"text", "json", "yaml"}[f]
 }
 
+// New は文字列から Format を返す
+func New(name string) Format {
+	if name == "Yaml" || name == "yaml" {
+		return Yaml
+	} else if name == "Json" || name == "json" {
+		return Json
+	} else {
+		return Text
+	}
+}
+
 func (f Format) Print(r result.Stringer, w io.Writer) error {
 	data, err := func() ([]byte, error) {
 		if f == Json {

@@ -60,3 +60,20 @@ func TestFormat_Print(t *testing.T) {
 		as.Error(f.Print(tr, nil))
 	})
 }
+
+func TestNew(t *testing.T) {
+	for _, v := range []struct {
+		a string
+		b output.Format
+	}{
+		{a: "Yaml", b: output.Yaml},
+		{a: "yaml", b: output.Yaml},
+		{a: "Json", b: output.Json},
+		{a: "json", b: output.Json},
+		{a: "Text", b: output.Text},
+		{a: "text", b: output.Text},
+		{a: "なんだこれは", b: output.Text},
+	} {
+		assert.Equal(t, v.b, output.New(v.a))
+	}
+}
