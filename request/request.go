@@ -18,8 +18,11 @@ import (
 type EndPoint string
 
 const (
-	Upload   EndPoint = "attachments"
-	Download EndPoint = "attachments"
+	Upload      EndPoint = "attachments"
+	Download    EndPoint = "attachments"
+	PostSearch  EndPoint = "posts"
+	UserSearch  EndPoint = "users"
+	GroupSearch EndPoint = "groups"
 )
 
 type Request struct {
