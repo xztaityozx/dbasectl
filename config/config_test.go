@@ -18,16 +18,17 @@ import (
 func Test_Load(t *testing.T) {
 	as := assert.New(t)
 	cfg := Config{
-		Token:   "token",
-		Name:    "name",
-		Timeout: 100,
+		Token:                "token",
+		Name:                 "name",
+		Timeout:              100,
+		ActivateOwnerFeature: false,
 	}
 
 	home, _ := homedir.Dir()
 
 	t.Run("load on linux/macOS/windows", func(t *testing.T) {
 		baseDir := filepath.Join(home, ".config", "dbasectl")
-		os.MkdirAll(baseDir, 0755)
+		_ = os.MkdirAll(baseDir, 0755)
 		for _, v := range []string{"json", "yaml", "toml"} {
 			path := filepath.Join(baseDir, fmt.Sprintf("dbasectl.%s", v))
 			var data []byte
@@ -54,7 +55,7 @@ func Test_Load(t *testing.T) {
 			}
 		}
 
-		os.RemoveAll(baseDir)
+		_ = os.RemoveAll(baseDir)
 	})
 
 	t.Run("load on windows", func(t *testing.T) {
@@ -63,7 +64,7 @@ func Test_Load(t *testing.T) {
 		}
 
 		baseDir := filepath.Join(home, "AppData", "Roaming", "dbasectl")
-		os.MkdirAll(baseDir, 0755)
+		_ = os.MkdirAll(baseDir, 0755)
 		for _, v := range []string{"json", "yaml", "toml"} {
 			path := filepath.Join(baseDir, fmt.Sprintf("dbasectl.%s", v))
 			var data []byte
@@ -90,6 +91,6 @@ func Test_Load(t *testing.T) {
 			}
 		}
 
-		os.RemoveAll(baseDir)
+		_ = os.RemoveAll(baseDir)
 	})
 }

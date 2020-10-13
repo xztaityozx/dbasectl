@@ -16,6 +16,8 @@ type Config struct {
 	Name string
 	// タイムアウト(msec)
 	Timeout time.Duration
+	// オーナーや管理者機能を有効化するかどうか
+	ActivateOwnerFeature bool
 }
 
 // Load はコンフィグファイルを読んで内容を Config 構造体にして返す
@@ -41,5 +43,10 @@ func Load(path string) (Config, error) {
 
 	err := viper.ReadInConfig()
 
-	return Config{Token: viper.GetString("Token"), Name: viper.GetString("Name"), Timeout: viper.GetDuration("Timeout")}, err
+	return Config{
+		Token:                viper.GetString("Token"),
+		Name:                 viper.GetString("Name"),
+		Timeout:              viper.GetDuration("Timeout"),
+		ActivateOwnerFeature: viper.GetBool("ActivateOwnerFeature"),
+	}, err
 }
