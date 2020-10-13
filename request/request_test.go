@@ -141,3 +141,29 @@ func TestRequest_AddPath(t *testing.T) {
 
 	assert.Equal(t, "https://example.com/item", r.url.String())
 }
+
+func TestRequest_AddParameter(t *testing.T) {
+	as := assert.New(t)
+	u, err := url.Parse("http://example.com/")
+	as.Nil(err)
+	req := Request{url: u}
+
+	kv := []struct {
+		k string
+		v string
+	}{
+		{k: "first", v: "はいはい"},
+		{k: "second", v: "それそれ"},
+		{k: "third", v: "ABC"},
+		{k: "fourth", v: "終わり"},
+	}
+
+	expect := url.Values{}
+
+	for _, v := range kv {
+		req.AddParameter(v.k, v.v)
+		expect.Add(v.k, v.v)
+	}
+
+	as.Equal(expect.Encode(), req.url.RawQuery)
+}

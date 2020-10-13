@@ -43,16 +43,15 @@ timeout: 100000
 # SubCommands
 dbasectlはいくつかのサブコマンドで機能を切り替えます
 
-|機能名|サブコマンド名|状態|
-|:--:|:--:|:--:|
-|ファイルアップロード|upload|ok|
-|ファイルダウンロード|download|ok|
-|メモ検索|seach|todo|
-|メモ更新|update|todo|
-|メモ投稿|post|todo|
-|メモ削除|delete|todo|
-|メモのアーカイブ・アーカイブ解除|archive|todo|
-|コメント投稿・削除|comment|todo|
-|タグの取得|tag|todo|
-|グループの作成・検索・追加・削除|group|todo|
-
+|機能名|サブコマンド名|状態|  
+|:--:|:--:|:--:|  
+|ファイルアップロード|upload|ok|  
+|ファイルダウンロード|download|ok|  
+|メモ検索|search|wip|  
+|メモ更新|update|todo|  
+|メモ投稿|post|todo|  
+|メモ削除|delete|todo|  
+|メモのアーカイブ・アーカイブ解除|archive|todo|  
+|コメント投稿・削除|comment|todo|  
+|タグの取得|tag|todo|  
+|グループの作成・検索・追加・削除|group|todo|  

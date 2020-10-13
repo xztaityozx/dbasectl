@@ -18,8 +18,11 @@ import (
 type EndPoint string
 
 const (
-	Upload   EndPoint = "attachments"
-	Download EndPoint = "attachments"
+	Upload      EndPoint = "attachments"
+	Download    EndPoint = "attachments"
+	PostSearch  EndPoint = "posts"
+	UserSearch  EndPoint = "users"
+	GroupSearch EndPoint = "groups"
 )
 
 type Request struct {
@@ -62,6 +65,14 @@ func (r *Request) WithLogger(logger *logrus.Logger) *Request {
 // SetBody はリクエストボディをセットする
 func (r *Request) SetBody(body io.Reader) *Request {
 	r.body = body
+	return r
+}
+
+// AddParameter はURLパラメータを追加する
+func (r *Request) AddParameter(key, value string) *Request {
+	val := r.url.Query()
+	val.Add(key, value)
+	r.url.RawQuery = val.Encode()
 	return r
 }
 
