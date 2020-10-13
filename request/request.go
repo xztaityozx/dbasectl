@@ -68,6 +68,14 @@ func (r *Request) SetBody(body io.Reader) *Request {
 	return r
 }
 
+// AddParameter はURLパラメータを追加する
+func (r *Request) AddParameter(key, value string) *Request {
+	val := r.url.Query()
+	val.Add(key, value)
+	r.url.RawQuery = val.Encode()
+	return r
+}
+
 // Build は http.Request を生成する
 func (r *Request) Build() error {
 
